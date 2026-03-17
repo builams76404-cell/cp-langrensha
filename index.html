@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CP杯 蓉城狼人杀</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 强制使用苹果系统字体，标题使用衬线体增加哥特海报感 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+            background-color: #0b0b0e;
+            color: #f2f2f7;
+            overflow-x: hidden;
+        }
+
+        h1, h2, .gothic-text {
+            font-family: "STZhongsong", "SimSun", serif;
+        }
+
+        /* 模拟暗黑森林/血月的动态模糊背景 */
+        .ios-bg-shape1 {
+            position: fixed; top: -10%; left: -10%; width: 50vw; height: 50vw;
+            background: radial-gradient(circle, rgba(160, 20, 20, 0.15) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1; filter: blur(80px);
+        }
+        .ios-bg-shape2 {
+            position: fixed; bottom: -10%; right: -10%; width: 60vw; height: 60vw;
+            background: radial-gradient(circle, rgba(180, 140, 40, 0.1) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1; filter: blur(80px);
+        }
+
+        /* 强化版的毛玻璃底框样式 */
+        .dark-glass-card {
+            background: rgba(18, 18, 22, 0.85); 
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(212, 175, 55, 0.15); 
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 24px;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9); 
+        }
+
+        /* 页面切换动画 */
+        .fade-in-up { animation: slideUpFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUpFadeIn {
+            0% { opacity: 0; transform: translateY(15px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 表格悬停交互 */
+        .hover-row { transition: all 0.3s ease; }
+        .hover-row:hover {
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-1px);
+        }
+
+        /* 战队卡片样式 */
+        .team-card {
+            background: linear-gradient(145deg, rgba(30,30,35,0.8) 0%, rgba(15,15,20,0.8) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.15);
+            transition: all 0.3s ease;
+        }
+        .team-card:hover {
+            border-color: rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+            transform: scale(1.02);
+        }
+
+        /* 隐藏区块类 */
+        .hidden-section { display: none !important; }
+
+        /* 自定义滚动条 */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+        /* 角色呼吸动画 */
+        @keyframes breathe {
+            0% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-8px) scale(1.02); filter: drop-shadow(0 0 15px rgba(255,255,255,0.2)); }
+            100% { transform: translateY(0px) scale(1); }
+        }
+        .corner-char {
+            pointer-events: none;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8));
+            animation: breathe 6s infinite ease-in-out;
+        }
+        .delay-1 { animation-delay: 0s; }
+        .delay-2 { animation-delay: -1.5s; }
+        .delay-3 { animation-delay: -3s; }
+        .delay-4 { animation-delay: -4.5s; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-10 relative pb-24">
+
+    <div class="ios-bg-shape1"></div>
+    <div class="ios-bg-shape2"></div>
+
+    <div class="text-center mt-2 mb-4 flex flex-col items-center gap-2 relative z-40 w-full">
+        <img src="ScreenShot_2026-03-17_135230_164.jpg" alt="" class="corner-char delay-1 relative w-40 md:w-52 object-cover rounded-xl mb-1 shadow-[0_0_20px_rgba(0,0,0,0.8)] z-40">
+        
+        <p class="text-gray-200 text-xl md:text-2xl font-bold tracking-widest">— 山海社造青年空间 —</p>
+        
+        <div class="relative flex items-center justify-center mt-1 mb-1">
+            <h1 class="text-4xl md:text-6xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-[#ff4d4d] to-[#8b0000] drop-shadow-lg mx-3 relative z-40">
+                “CP杯”蓉城狼人杀
+            </h1>
+        </div>
+
+        <p class="text-gray-400 text-sm tracking-widest">- 第二届积分赛 -</p>
+    </div>
+
+    <div class="flex justify-center mb-14 md:mb-8 relative z-40">
+        <div class="inline-flex bg-black/50 backdrop-blur-md rounded-full p-1 border border-gray-700/50 shadow-inner">
+            <button onclick="switchTab('leaderboard')" id="nav-leaderboard" class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 bg-[#8b0000] text-white shadow-[0_0_10px_rgba(139,0,0,0.5)]">
+                积分榜
+            </button>
+            <button onclick="switchTab('teams')" id="nav-teams" class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 text-gray-400 hover:text-gray-200">
+                战队构成
+            </button>
+            <button onclick="switchTab('rules')" id="nav-rules" class="px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 text-gray-400 hover:text-gray-200">
+                规则介绍
+            </button>
+        </div>
+    </div>
+
+    <div class="relative max-w-5xl mx-auto w-full mt-6 md:mt-2">
+        
+        <img src="corner-bottom-left.png" alt="" class="corner-char delay-3 absolute -top-16 left-0 md:-top-32 md:left-12 w-24 md:w-40 object-contain z-0 opacity-90">
+        <img src="corner-bottom-right.png" alt="" class="corner-char delay-4 absolute -top-20 right-0 md:-top-44 md:right-12 w-28 md:w-48 object-contain z-0 opacity-90">
+
+        <div class="dark-glass-card absolute inset-0 z-10 pointer-events-none transition-all duration-300"></div>
+
+        <img src="corner-top-left.png" alt="" class="wm-leaderboard corner-char delay-1 absolute top-32 left-1/2 -translate-x-1/2 w-72 md:w-[32rem] object-contain z-20 opacity-10 md:opacity-15">
+        
+        <img src="corner-top-right.png" alt="" class="wm-rules corner-char delay-4 absolute top-1/2 -translate-y-1/2 right-4 md:right-20 w-48 md:w-80 object-contain z-20 opacity-15 md:opacity-25 hidden-section">
+
+
+        <div id="section-leaderboard" class="p-6 md:p-8 fade-in-up relative z-30">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-[#D4AF37] flex items-center gap-2 drop-shadow-md">
+                    <span class="w-1.5 h-6 bg-[#8b0000] rounded-full block"></span> 积分龙虎榜
+                </h2>
+                <button onclick="openDataEntry()" class="flex items-center gap-2 bg-[#8b0000] hover:bg-[#a50000] text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-[0_0_10px_rgba(139,0,0,0.3)]">
+                    + 录入数据
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-center border-collapse whitespace-nowrap">
+                    <thead id="leaderboard-head"></thead>
+                    <tbody id="leaderboard-body" class="text-base drop-shadow-md"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="section-teams" class="p-6 md:p-8 hidden-section relative z-30">
+            <div class="mb-8 text-center">
+                <h2 class="text-3xl font-bold text-[#D4AF37] inline-block mb-2">- 参赛名单 -</h2>
+                <p class="text-gray-500 text-sm">共 12 支精锐战队集结</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4" id="team-grid"></div>
+        </div>
+
+        <div id="section-rules" class="p-6 md:p-8 hidden-section relative z-30">
+            <h2 class="text-2xl font-bold text-[#D4AF37] flex items-center gap-2 mb-6">
+                <span class="w-1.5 h-6 bg-[#8b0000] rounded-full block"></span> 赛事规则简介
+            </h2>
+            <div class="grid md:grid-cols-2 gap-8 text-gray-300 text-sm leading-relaxed">
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-[#ff4d4d] font-bold text-base mb-3">时间与平台</h3>
+                        <p class="bg-black/30 p-4 rounded-xl border border-gray-700/50 space-y-2 relative z-30">
+                            <span class="block"><span class="text-white">时间：</span>2026年3月16日-20日 (18日休战)。</span>
+                            <span class="block"><span class="text-white">频次：</span>每晚3局，20:00准时开赛。</span>
+                            <span class="block"><span class="text-white">平台：</span>网易狼人杀APP。</span>
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-[#ff4d4d] font-bold text-base mb-3">比赛版型</h3>
+                        <div class="bg-black/30 p-4 rounded-xl border border-gray-700/50 space-y-2 relative z-30">
+                            <span class="block"><span class="text-white">第一组：</span>预女猎白、狼王摄梦、狼美人骑士</span>
+                            <span class="block"><span class="text-white">第二组：</span>预女猎守、狼王守卫、机械狼</span>
+                            <span class="block text-[#ff4d4d] text-xs pt-2 mt-2 border-t border-gray-700/50">(女巫第一天不可自救，双药不可同用)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="pr-8">
+                        <h3 class="text-[#ff4d4d] font-bold text-base mb-3">赛事纪律与奖惩</h3>
+                        <ul class="bg-black/30 p-4 rounded-xl border border-gray-700/50 space-y-3 list-none relative z-30">
+                            <li>- 严禁贴脸、场外、擦边、人身攻击。</li>
+                            <li>- 严重违规或退赛扣除违规金 5分。</li>
+                            <li>- 积分计算以网易狼人杀APP结算为准。</li>
+                            <li>- 冠亚季军战队及 MVP 均有现金/红包奖励。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> 
+    
+    <div id="data-entry-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden-section bg-black/80 backdrop-blur-sm transition-opacity">
+        <div class="dark-glass-card p-6 w-11/12 max-w-md max-h-[85vh] flex flex-col relative border border-[#D4AF37]/30 z-50">
+            <button onclick="closeDataEntry()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">✕</button>
+            <h3 class="text-xl font-bold text-[#D4AF37] mb-4 border-b border-gray-700/50 pb-3 flex items-center gap-2">
+                <span class="w-1.5 h-5 bg-[#8b0000] rounded-full block"></span> 录入新对局分数
+            </h3>
+            
+            <div class="mb-4">
+                <label class="block text-sm text-gray-300 mb-1">对局名称标签</label>
+                <input type="text" id="new-round-name" value="第四局" class="w-full bg-black/60 border border-gray-600 rounded-lg px-3 py-2 text-white outline-none focus:border-[#ff4d4d] transition-colors">
+            </div>
+            
+            <div class="flex justify-between text-xs text-gray-500 mb-2 px-1">
+                <span>战队名称</span>
+                <span>单局得分 (可负数)</span>
+            </div>
+            
+            <div id="team-score-inputs" class="flex-1 overflow-y-auto space-y-2 mb-4 pr-2 custom-scrollbar">
+            </div>
+            
+            <button onclick="saveNewData()" class="w-full bg-gradient-to-r from-[#8b0000] to-[#5a0000] hover:from-[#a50000] hover:to-[#8b0000] text-white py-3 rounded-lg font-semibold transition-all shadow-lg">
+                确认录入并更新积分榜
+            </button>
+            <p class="text-[10px] text-gray-500 mt-3 text-center opacity-70">注：本页面为纯前端展示，刷新网页后数据将重置。</p>
+        </div>
+    </div>
+
+    <script>
+        const initialBoardData = [
+            { name: '抿相笑哈哈队', r1: 3.5, r2: 4, r3: 3, total: 10.5 },
+            { name: '毕加索队', r1: 4, r2: 4.5, r3: -2, total: 6.5 },
+            { name: '橘句都赢队', r1: 3.5, r2: 4.5, r3: -2.5, total: 5.5 },
+            { name: '海豹陆战队', r1: -3, r2: 4.5, r3: 3, total: 4.5 },
+            { name: '蜜语暴击队', r1: 4.5, r2: 3, r3: -3, total: 4.5 },
+            { name: '李白队', r1: 2.5, r2: 4, r3: -3, total: 3.5 },
+            { name: '悠悠全队', r1: -3, r2: 3, r3: 3, total: 3.0 },
+            { name: '雨锤定音队', r1: 3, r2: 2.5, r3: -3, total: 2.5 },
+            { name: '满天星队', r1: 2.5, r2: -3, r3: -2.5, total: -3.0 },
+            { name: '江江江江队', r1: -3, r2: -3, r3: 3, total: -3.0 },
+            { name: '月黑枫高队', r1: 2.5, r2: -3, r3: -3.5, total: -4.0 },
+            { name: '子弹熊队', r1: -3, r2: -3, r3: -2.5, total: -8.5 }
+        ];
+
+        initialBoardData.forEach(team => team.extraScores = []);
+        let extraColumns = [];
+
+        function renderTable() {
+            initialBoardData.sort((a, b) => b.total - a.total);
+            
+            let currentRank = 1;
+            for(let i = 0; i < initialBoardData.length; i++) {
+                if(i > 0 && initialBoardData[i].total < initialBoardData[i-1].total) {
+                    currentRank = i + 1;
+                }
+                initialBoardData[i].rank = currentRank;
+            }
+
+            const thead = document.getElementById('leaderboard-head');
+            let thHtml = `
+                <tr class="text-gray-400 text-sm border-b border-gray-700/50">
+                    <th class="pb-3 font-medium text-left pl-4">排名</th>
+                    <th class="pb-3 font-medium text-left">队名</th>
+                    <th class="pb-3 font-medium">第一局</th>
+                    <th class="pb-3 font-medium">第二局</th>
+                    <th class="pb-3 font-medium">第三局</th>
+            `;
+            extraColumns.forEach(colName => {
+                thHtml += `<th class="pb-3 font-medium text-[#ff4d4d]">${colName}</th>`;
+            });
+            thHtml += `<th class="pb-3 font-semibold text-right pr-4">总分</th></tr>`;
+            thead.innerHTML = thHtml;
+
+            const tbody = document.getElementById('leaderboard-body');
+            tbody.innerHTML = '';
+            
+            initialBoardData.forEach((team) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover-row border-b border-gray-700/50 relative z-30';
+                
+                let tdHtml = `
+                    <td class="py-3 pl-4 text-left w-12">${formatRank(team.rank)}</td>
+                    <td class="py-3 font-semibold text-left text-gray-200">${team.name}</td>
+                    <td class="py-3">${formatScore(team.r1)}</td>
+                    <td class="py-3">${formatScore(team.r2)}</td>
+                    <td class="py-3">${formatScore(team.r3)}</td>
+                `;
+                
+                team.extraScores.forEach(score => {
+                    tdHtml += `<td class="py-3">${formatScore(score)}</td>`;
+                });
+
+                const totalDisplay = team.total > 0 ? '+' + team.total.toFixed(1).replace('.0','') : team.total.toFixed(1).replace('.0','');
+                tdHtml += `<td class="py-3 pr-4 text-right text-lg font-bold text-[#D4AF37]">${totalDisplay}</td>`;
+                
+                tr.innerHTML = tdHtml;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function formatScore(score) {
+            const num = parseFloat(score);
+            if (num > 0) return `<span class="text-[#34C759] font-medium">+${num}</span>`; 
+            if (num < 0) return `<span class="text-[#ff4d4d] font-medium">${num}</span>`; 
+            return `<span class="text-gray-500">${num}</span>`;
+        }
+        function formatRank(rank) {
+            if (rank === 1) return '<div class="w-6 h-6 mx-auto bg-gradient-to-br from-yellow-300 to-yellow-600 text-black rounded-full flex items-center justify-center font-bold text-xs shadow-[0_0_8px_rgba(253,224,71,0.5)]">1</div>';
+            if (rank === 2) return '<div class="w-6 h-6 mx-auto bg-gradient-to-br from-gray-300 to-gray-500 text-black rounded-full flex items-center justify-center font-bold text-xs">2</div>';
+            if (rank === 3) return '<div class="w-6 h-6 mx-auto bg-gradient-to-br from-orange-400 to-orange-700 text-black rounded-full flex items-center justify-center font-bold text-xs">3</div>';
+            return `<div class="text-gray-500 font-medium">${rank}</div>`;
+        }
+
+        function switchTab(tabName) {
+            ['leaderboard', 'teams', 'rules'].forEach(id => {
+                const el = document.getElementById('section-' + id);
+                el.classList.add('hidden-section');
+                el.classList.remove('fade-in-up');
+            });
+            ['nav-leaderboard', 'nav-teams', 'nav-rules'].forEach(id => {
+                document.getElementById(id).className = 'px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 text-gray-400 hover:text-gray-200';
+            });
+            
+            const targetSection = document.getElementById('section-' + tabName);
+            targetSection.classList.remove('hidden-section');
+            void targetSection.offsetWidth; 
+            targetSection.classList.add('fade-in-up');
+            
+            document.getElementById('nav-' + tabName).className = 'px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 bg-[#8b0000] text-white shadow-[0_0_10px_rgba(139,0,0,0.5)]';
+
+            document.querySelectorAll('.wm-leaderboard').forEach(el => {
+                if (tabName === 'leaderboard') el.classList.remove('hidden-section');
+                else el.classList.add('hidden-section');
+            });
+            document.querySelectorAll('.wm-rules').forEach(el => {
+                if (tabName === 'rules') el.classList.remove('hidden-section');
+                else el.classList.add('hidden-section');
+            });
+        }
+
+        function openDataEntry() {
+            const pwd = prompt("请输入赛事管理员密码：\n(提示：默认口令)");
+            if (pwd === "shanhai") {
+                const container = document.getElementById('team-score-inputs');
+                container.innerHTML = '';
+                
+                initialBoardData.forEach((team, index) => {
+                    container.innerHTML += `
+                        <div class="flex justify-between items-center bg-black/30 p-2 rounded border border-gray-700/50 hover:border-gray-500 transition-colors">
+                            <span class="text-gray-300 text-sm font-medium flex items-center gap-2">
+                                <span class="text-gray-600 text-xs w-4">${team.rank}.</span> ${team.name}
+                            </span>
+                            <input type="number" step="0.5" id="score-input-${index}" value="0" class="w-20 bg-black/60 border border-gray-600 rounded px-2 py-1 text-white text-right outline-none focus:border-[#ff4d4d] focus:bg-black/80">
+                        </div>
+                    `;
+                });
+                document.getElementById('data-entry-modal').classList.remove('hidden-section');
+            } else if (pwd !== null) {
+                alert("❌ 密码验证失败，无权修改积分榜！");
+            }
+        }
+
+        function closeDataEntry() {
+            document.getElementById('data-entry-modal').classList.add('hidden-section');
+        }
+
+        function saveNewData() {
+            const roundName = document.getElementById('new-round-name').value || `第 ${extraColumns.length + 4} 局`;
+            extraColumns.push(roundName);
+            
+            initialBoardData.forEach((team, index) => {
+                const scoreInput = document.getElementById(`score-input-${index}`).value;
+                const score = parseFloat(scoreInput) || 0;
+                team.extraScores.push(score);
+                team.total = parseFloat((team.total + score).toFixed(1)); 
+            });
+            
+            renderTable(); 
+            closeDataEntry();
+            
+            setTimeout(() => { alert(`✅ 录入成功！【${roundName}】的数据已并入总分并完成重新排榜。`); }, 100);
+        }
+
+        const teamsData = [
+           { name: "子弹熊", members: ["糖衣蛋子", "小熊", "栀子"] },
+            { name: "毕加索队", members: ["弈安", "iris", "赵老师"] },
+            { name: "李白队", members: ["三思", "银月", "若竹"] },
+            { name: "满天星", members: ["飘飘天上飞", "星星", "小满"] },
+            { name: "海豹陆战队", members: ["大汉堡", "海王", "璐璐"] },
+            { name: "江江江江", members: ["江无", "杰尼龟", "陈叙"] },
+            { name: "悠悠全队", members: ["Yy", "俊俊"] },
+            { name: "雨锤定音", members: ["忘川", "大锤"] },
+            { name: "抿相笑哈哈", members: ["哈哈", "相大哥"] },
+            { name: "橘句都赢", members: ["橘子", "句号"] },
+            { name: "月黑枫高", members: ["枫老师", "高庭"] },
+            { name: "蜜语暴击", members: ["蜜糖", "咕咕鱼", "超威"] }
+        ];
+
+        const teamGrid = document.getElementById('team-grid');
+        teamsData.forEach(team => {
+            const card = document.createElement('div');
+            card.className = 'team-card p-4 rounded-xl flex flex-col items-center justify-center text-center gap-2 relative z-30';
+            const membersHtml = team.members.map(m => `<span class="text-xs bg-black/40 text-gray-300 px-2 py-1 rounded-full border border-gray-600/50">${m}</span>`).join('');
+            card.innerHTML = `<div class="text-[#D4AF37] font-bold text-base mb-1 tracking-wide">${team.name}</div><div class="flex flex-wrap justify-center gap-1.5">${membersHtml}</div>`;
+            teamGrid.appendChild(card);
+        });
+
+        renderTable(); 
+        switchTab('leaderboard'); 
+    </script>
+</body>
+</html>
