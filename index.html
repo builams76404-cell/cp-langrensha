@@ -210,7 +210,7 @@
             
             <div class="mb-4">
                 <label class="block text-sm text-gray-300 mb-1">对局名称标签</label>
-                <input type="text" id="new-round-name" value="第十局" class="w-full bg-black/60 border border-gray-600 rounded-lg px-3 py-2 text-white outline-none focus:border-[#ff4d4d] transition-colors">
+                <input type="text" id="new-round-name" value="第十三局" class="w-full bg-black/60 border border-gray-600 rounded-lg px-3 py-2 text-white outline-none focus:border-[#ff4d4d] transition-colors">
             </div>
             
             <div class="flex justify-between text-xs text-gray-500 mb-2 px-1">
@@ -229,20 +229,20 @@
     </div>
 
     <script>
-        // 包含前九局硬编码数据的数组
+        // 包含前12局硬编码数据及罚分的数组
         const initialBoardData = [
-            { name: '抿相笑哈哈队', r1: 3.5, r2: 4, r3: 3, r4: 4.5, r5: 3, r6: -3, r7: -3.5, r8: 4, r9: -1.5, total: 14.0 },
-            { name: '毕加索队', r1: 4, r2: 4.5, r3: -2, r4: -1.5, r5: -2.5, r6: 4, r7: -3.5, r8: 4.5, r9: -3, total: 4.5 },
-            { name: '橘句都赢队', r1: 3.5, r2: 4.5, r3: -2.5, r4: 3.5, r5: -3.5, r6: 4.5, r7: -3.5, r8: -3, r9: -2.5, total: 1.0 },
-            { name: '海豹陆战队', r1: -3, r2: 4.5, r3: 3, r4: -3, r5: -2.5, r6: 3, r7: 3, r8: -3, r9: 4.5, total: 6.5 },
-            { name: '蜜语暴击队', r1: 4.5, r2: 3, r3: -3, r4: 4.5, r5: -2.5, r6: 2.5, r7: -3.5, r8: 3, r9: 3, total: 11.5 },
-            { name: '李白队', r1: 2.5, r2: 4, r3: -3, r4: 4, r5: 3, r6: 4, r7: -2.5, r8: -2.5, r9: -2.5, total: 7.0 },
-            { name: '悠悠全队', r1: -3, r2: 3, r3: 3, r4: -3, r5: -3, r6: -2, r7: -2, r8: 3.5, r9: -2.5, total: -6.0 },
-            { name: '雨锤定音队', r1: 3, r2: 2.5, r3: -3, r4: 4, r5: 4, r6: 3, r7: -2.5, r8: 2.5, r9: -2.5, total: 11.0 },
-            { name: '满天星队', r1: 2.5, r2: -3, r3: -2.5, r4: 4.5, r5: -2.5, r6: 3, r7: 4, r8: -3, r9: 3, total: 6.0 },
-            { name: '江江江江队', r1: -3, r2: -3, r3: 3, r4: -3, r5: 3.5, r6: -3, r7: 3, r8: 4, r9: -3.5, total: -2.0 },
-            { name: '月黑枫高队', r1: 2.5, r2: -3, r3: -3.5, r4: 2.5, r5: -2.5, r6: -3, r7: 3, r8: 4, r9: 3, total: 3.0 },
-            { name: '子弹熊队', r1: -3, r2: -3, r3: -2.5, r4: 2.5, r5: -1.5, r6: 4.5, r7: -3, r8: 4, r9: -2.5, total: -4.5 }
+            { name: '抿相笑哈哈队', r1: 3.5, r2: 4, r3: 3, r4: 4.5, r5: 3, r6: -3, r7: -3.5, r8: 4, r9: -1.5, r10: 3.5, r11: -3, r12: 4, penalty: 0, total: 18.5 },
+            { name: '毕加索队', r1: 4, r2: 4.5, r3: -2, r4: -1.5, r5: -2.5, r6: 4, r7: -3.5, r8: 4.5, r9: -3, r10: -2, r11: 4, r12: -3, penalty: 0, total: 3.5 },
+            { name: '橘句都赢队', r1: 3.5, r2: 4.5, r3: -2.5, r4: 3.5, r5: -3.5, r6: 4.5, r7: -3.5, r8: -3, r9: -2.5, r10: 3.5, r11: 3, r12: 3.5, penalty: 0, total: 11.0 },
+            { name: '海豹陆战队', r1: -3, r2: 4.5, r3: 3, r4: -3, r5: -2.5, r6: 3, r7: 4, r8: -3, r9: 3.5, r10: -3, r11: 3, r12: -2, penalty: 0, total: 4.5 },
+            { name: '蜜语暴击队', r1: 4.5, r2: 3, r3: -3, r4: 4.5, r5: -2.5, r6: 2.5, r7: -3.5, r8: 3, r9: 3, r10: 4, r11: -3, r12: 2.5, penalty: 0, total: 15.0 },
+            { name: '李白队', r1: 2.5, r2: 4, r3: -3, r4: 4, r5: 3, r6: 4, r7: -2.5, r8: -2.5, r9: -2.5, r10: 4, r11: -3, r12: -3, penalty: -2, total: 3.0 },
+            { name: '悠悠全队', r1: -3, r2: 3, r3: 3, r4: -3, r5: -3, r6: -2, r7: -2, r8: 3.5, r9: -2.5, r10: 4, r11: 4, r12: -3, penalty: 0, total: -1.0 },
+            { name: '雨锤定音队', r1: 3, r2: 2.5, r3: -3, r4: 4, r5: 4, r6: 3, r7: -2.5, r8: 2.5, r9: -2.5, r10: -3, r11: -2, r12: 3, penalty: 0, total: 9.0 },
+            { name: '满天星队', r1: 2.5, r2: -3, r3: -2.5, r4: 4.5, r5: -2.5, r6: 3, r7: 3, r8: -3, r9: 4, r10: 4, r11: 3, r12: 3.5, penalty: 0, total: 16.5 },
+            { name: '江江江江队', r1: -3, r2: -3, r3: 3, r4: -3, r5: 3.5, r6: -3, r7: 3, r8: 4, r9: -3.5, r10: -3, r11: 3, r12: 3.5, penalty: 0, total: 1.5 },
+            { name: '月黑枫高队', r1: 2.5, r2: -3, r3: -3.5, r4: 2.5, r5: -2.5, r6: -3, r7: 3, r8: 4, r9: 3, r10: 4.5, r11: 2.5, r12: 3.5, penalty: 0, total: 13.5 },
+            { name: '子弹熊队', r1: -3, r2: -3, r3: -2.5, r4: 2.5, r5: -1.5, r6: 4.5, r7: -3, r8: 4, r9: -2.5, r10: 4.5, r11: 3.5, r12: 3, penalty: 0, total: 6.5 }
         ];
 
         initialBoardData.forEach(team => team.extraScores = []);
@@ -274,11 +274,18 @@
                     <th class="pb-3 font-medium">第七局</th>
                     <th class="pb-3 font-medium">第八局</th>
                     <th class="pb-3 font-medium">第九局</th>
+                    <th class="pb-3 font-medium">第十局</th>
+                    <th class="pb-3 font-medium">第十一局</th>
+                    <th class="pb-3 font-medium">第十二局</th>
             `;
             extraColumns.forEach(colName => {
                 thHtml += `<th class="pb-3 font-medium text-[#ff4d4d]">${colName}</th>`;
             });
-            thHtml += `<th class="pb-3 font-semibold text-right pr-4">总分</th></tr>`;
+            thHtml += `
+                    <th class="pb-3 font-medium text-[#ff4d4d]">罚分</th>
+                    <th class="pb-3 font-semibold text-right pr-4">总分</th>
+                </tr>
+            `;
             thead.innerHTML = thHtml;
 
             const tbody = document.getElementById('leaderboard-body');
@@ -300,11 +307,17 @@
                     <td class="py-3">${formatScore(team.r7)}</td>
                     <td class="py-3">${formatScore(team.r8)}</td>
                     <td class="py-3">${formatScore(team.r9)}</td>
+                    <td class="py-3">${formatScore(team.r10)}</td>
+                    <td class="py-3">${formatScore(team.r11)}</td>
+                    <td class="py-3">${formatScore(team.r12)}</td>
                 `;
                 
                 team.extraScores.forEach(score => {
                     tdHtml += `<td class="py-3">${formatScore(score)}</td>`;
                 });
+
+                // 渲染罚分列
+                tdHtml += `<td class="py-3">${team.penalty !== 0 ? formatScore(team.penalty) : '<span class="text-gray-600">-</span>'}</td>`;
 
                 const totalDisplay = team.total > 0 ? '+' + team.total.toFixed(1).replace('.0','') : team.total.toFixed(1).replace('.0','');
                 tdHtml += `<td class="py-3 pr-4 text-right text-lg font-bold text-[#D4AF37]">${totalDisplay}</td>`;
@@ -382,7 +395,7 @@
         }
 
         function saveNewData() {
-            const roundName = document.getElementById('new-round-name').value || `第 ${extraColumns.length + 10} 局`;
+            const roundName = document.getElementById('new-round-name').value || `第 ${extraColumns.length + 13} 局`;
             extraColumns.push(roundName);
             
             initialBoardData.forEach((team, index) => {
